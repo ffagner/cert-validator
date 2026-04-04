@@ -54,6 +54,12 @@ export function ValidationPage() {
                 <dt className="text-gray-500">Emitido por</dt>
                 <dd className="text-gray-800 font-medium">{result.issuedBy}</dd>
               </div>
+              {result.issuedByCnpj && (
+                <div>
+                  <dt className="text-gray-500">CNPJ</dt>
+                  <dd className="text-gray-800 font-medium">{result.issuedByCnpj}</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-gray-500">Data de emissão</dt>
                 <dd className="text-gray-800 font-medium">
@@ -99,6 +105,12 @@ export function ValidationPage() {
                 <dt className="text-gray-500">Emitido por</dt>
                 <dd className="text-gray-800 font-medium">{result.issuedBy}</dd>
               </div>
+              {result.issuedByCnpj && (
+                <div>
+                  <dt className="text-gray-500">CNPJ</dt>
+                  <dd className="text-gray-800 font-medium">{result.issuedByCnpj}</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-gray-500">Expirou em</dt>
                 <dd className="text-yellow-600 font-medium">

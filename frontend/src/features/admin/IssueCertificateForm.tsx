@@ -12,6 +12,7 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
   const [courseName, setCourseName] = useState("");
   const [courseHours, setCourseHours] = useState("");
   const [issuedBy, setIssuedBy] = useState("");
+  const [issuedByCnpj, setIssuedByCnpj] = useState("");
   const [issuedAt, setIssuedAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -27,6 +28,7 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
         courseName,
         courseHours: Number(courseHours),
         issuedBy,
+        issuedByCnpj,
         issuedAt,
         expiresAt: expiresAt || undefined,
       };
@@ -36,6 +38,7 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
       setCourseName("");
       setCourseHours("");
       setIssuedBy("");
+      setIssuedByCnpj("");
       setIssuedAt("");
       setExpiresAt("");
     } catch {
@@ -95,6 +98,20 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
             required
             value={issuedBy}
             onChange={(e) => setIssuedBy(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            CNPJ da instituição *
+          </label>
+          <input
+            type="text"
+            required
+            placeholder="XX.XXX.XXX/XXXX-XX"
+            maxLength={18}
+            value={issuedByCnpj}
+            onChange={(e) => setIssuedByCnpj(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

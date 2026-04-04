@@ -8,6 +8,7 @@ export interface IssueCertificatePayload {
   courseName: string;
   courseHours: number;
   issuedBy: string;
+  issuedByCnpj: string;
   issuedAt: string;
   expiresAt?: string;
 }
@@ -25,6 +26,7 @@ export interface CertificateValidationResponse {
   courseName?: string;
   courseHours?: number;
   issuedBy?: string;
+  issuedByCnpj?: string;
   issuedAt?: string;
   expiresAt?: string | null;
 }

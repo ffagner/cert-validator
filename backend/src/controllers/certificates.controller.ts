@@ -12,10 +12,10 @@ export async function postCertificate(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { studentName, courseName, courseHours, issuedBy, issuedAt, expiresAt } = req.body;
+    const { studentName, courseName, courseHours, issuedBy, issuedByCnpj, issuedAt, expiresAt } = req.body;
 
-    if (!studentName || !courseName || !issuedBy || !issuedAt || courseHours === undefined) {
-      res.status(400).json({ message: "Campos obrigatórios ausentes: studentName, courseName, courseHours, issuedBy, issuedAt." });
+    if (!studentName || !courseName || !issuedBy || !issuedByCnpj || !issuedAt || courseHours === undefined) {
+      res.status(400).json({ message: "Campos obrigatórios ausentes: studentName, courseName, courseHours, issuedBy, issuedByCnpj, issuedAt." });
       return;
     }
 
@@ -25,11 +25,23 @@ export async function postCertificate(
       return;
     }
 
+    // Aceita CNPJ com ou sem formatação (XX.XXX.XXX/XXXX-XX ou 14 dígitos)
+    const cnpjDigits = String(issuedByCnpj).replace(/\D/g, "");
+    if (cnpjDigits.length !== 14) {
+      res.status(400).json({ message: "issuedByCnpj deve conter 14 dígitos." });
+      return;
+    }
+    const formattedCnpj = cnpjDigits.replace(
+      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+      "$1.$2.$3/$4-$5"
+    );
+
     const result = await issueCertificate({
       studentName,
       courseName,
       courseHours: parsedHours,
       issuedBy,
+      issuedByCnpj: formattedCnpj,
       issuedAt,
       expiresAt,
     });

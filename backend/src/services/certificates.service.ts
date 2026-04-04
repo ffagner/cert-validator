@@ -9,6 +9,7 @@ export interface IssueCertificateInput {
   courseName: string;
   courseHours: number;
   issuedBy: string;
+  issuedByCnpj: string;
   issuedAt: string;
   expiresAt?: string;
 }
@@ -28,6 +29,7 @@ export interface CertificateValidationResult {
   courseName?: string;
   courseHours?: number;
   issuedBy?: string;
+  issuedByCnpj?: string;
   issuedAt?: string;
   expiresAt?: string | null;
 }
@@ -49,6 +51,7 @@ export async function issueCertificate(
     courseName: input.courseName,
     courseHours: input.courseHours,
     issuedBy: input.issuedBy,
+    issuedByCnpj: input.issuedByCnpj,
     issuedAt: Timestamp.fromDate(new Date(input.issuedAt)),
     expiresAt: input.expiresAt
       ? Timestamp.fromDate(new Date(input.expiresAt))
@@ -92,6 +95,7 @@ export async function validateCertificate(
       courseName: data.courseName,
       courseHours: data.courseHours,
       issuedBy: data.issuedBy,
+      issuedByCnpj: data.issuedByCnpj,
       issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
       expiresAt: (data.expiresAt as Timestamp).toDate().toISOString(),
     };
@@ -103,6 +107,7 @@ export async function validateCertificate(
     courseName: data.courseName,
     courseHours: data.courseHours,
     issuedBy: data.issuedBy,
+    issuedByCnpj: data.issuedByCnpj,
     issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
     expiresAt: data.expiresAt
       ? (data.expiresAt as Timestamp).toDate().toISOString()

@@ -12,7 +12,10 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
-app.use("/api/certificates", certificatesRouter);
+// Firebase Functions strips the function name from the path.
+// Emulator: /us-central1/api/certificates → Express sees /certificates
+// Production via Hosting rewrite (/api/** → function "api"): same behavior
+app.use("/certificates", certificatesRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

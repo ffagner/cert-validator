@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { revokeCertificate } from "../../shared/api/certificates.api";
+import { revokeCertificate, getCertificateQr } from "../../shared/api/certificates.api";
 
-interface CertificateItem {
+export interface CertificateItem {
   uuid: string;
   studentName: string;
   courseName: string;
@@ -11,6 +11,12 @@ interface CertificateItem {
   isActive: boolean;
 }
 
+interface QrPanel {
+  uuid: string;
+  validationUrl: string;
+  qrCodeBase64: string;
+}
+
 interface CertificateListProps {
   certificates: CertificateItem[];
   onRevoked: (uuid: string) => void;
@@ -18,6 +24,8 @@ interface CertificateListProps {
 
 export function CertificateList({ certificates, onRevoked }: CertificateListProps) {
   const [revoking, setRevoking] = useState<string | null>(null);
+  const [loadingQr, setLoadingQr] = useState<string | null>(null);
+  const [qrPanel, setQrPanel] = useState<QrPanel | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleRevoke(uuid: string) {
@@ -27,11 +35,36 @@ export function CertificateList({ certificates, onRevoked }: CertificateListProp
     try {
       await revokeCertificate(uuid);
       onRevoked(uuid);
+      if (qrPanel?.uuid === uuid) setQrPanel(null);
     } catch {
       setError("Erro ao revogar certificado.");
     } finally {
       setRevoking(null);
     }
+  }
+
+  async function handleViewQr(uuid: string) {
+    if (qrPanel?.uuid === uuid) {
+      setQrPanel(null);
+      return;
+    }
+    setLoadingQr(uuid);
+    setError(null);
+    try {
+      const result = await getCertificateQr(uuid);
+      setQrPanel({ uuid, ...result });
+    } catch {
+      setError("Erro ao carregar QR Code.");
+    } finally {
+      setLoadingQr(null);
+    }
+  }
+
+  function downloadQr(qr: QrPanel) {
+    const link = document.createElement("a");
+    link.href = qr.qrCodeBase64;
+    link.download = `qrcode-${qr.uuid}.png`;
+    link.click();
   }
 
   if (certificates.length === 0) {
@@ -49,36 +82,73 @@ export function CertificateList({ certificates, onRevoked }: CertificateListProp
               <th className="py-2 pr-4 font-medium text-gray-600">Curso</th>
               <th className="py-2 pr-4 font-medium text-gray-600">Emissão</th>
               <th className="py-2 pr-4 font-medium text-gray-600">Status</th>
-              <th className="py-2 font-medium text-gray-600">Ação</th>
+              <th className="py-2 font-medium text-gray-600">Ações</th>
             </tr>
           </thead>
           <tbody>
             {certificates.map((cert) => (
-              <tr key={cert.uuid} className="border-b border-gray-100">
-                <td className="py-2 pr-4 text-gray-800">{cert.studentName}</td>
-                <td className="py-2 pr-4 text-gray-800">{cert.courseName}</td>
-                <td className="py-2 pr-4 text-gray-600">
-                  {new Date(cert.issuedAt).toLocaleDateString("pt-BR")}
-                </td>
-                <td className="py-2 pr-4">
-                  {cert.isActive ? (
-                    <span className="text-green-600 font-medium">Ativo</span>
-                  ) : (
-                    <span className="text-red-500 font-medium">Revogado</span>
-                  )}
-                </td>
-                <td className="py-2">
-                  {cert.isActive && (
+              <>
+                <tr key={cert.uuid} className="border-b border-gray-100">
+                  <td className="py-2 pr-4 text-gray-800">{cert.studentName}</td>
+                  <td className="py-2 pr-4 text-gray-800">{cert.courseName}</td>
+                  <td className="py-2 pr-4 text-gray-600">
+                    {new Date(cert.issuedAt).toLocaleDateString("pt-BR")}
+                  </td>
+                  <td className="py-2 pr-4">
+                    {cert.isActive ? (
+                      <span className="text-green-600 font-medium">Ativo</span>
+                    ) : (
+                      <span className="text-red-500 font-medium">Revogado</span>
+                    )}
+                  </td>
+                  <td className="py-2 flex gap-3">
                     <button
-                      onClick={() => handleRevoke(cert.uuid)}
-                      disabled={revoking === cert.uuid}
-                      className="text-red-500 hover:text-red-700 text-sm disabled:opacity-50"
+                      onClick={() => handleViewQr(cert.uuid)}
+                      disabled={loadingQr === cert.uuid}
+                      className="text-blue-500 hover:text-blue-700 text-sm disabled:opacity-50"
                     >
-                      {revoking === cert.uuid ? "Revogando..." : "Revogar"}
+                      {loadingQr === cert.uuid
+                        ? "Carregando..."
+                        : qrPanel?.uuid === cert.uuid
+                        ? "Fechar QR"
+                        : "Ver QR"}
                     </button>
-                  )}
-                </td>
-              </tr>
+                    {cert.isActive && (
+                      <button
+                        onClick={() => handleRevoke(cert.uuid)}
+                        disabled={revoking === cert.uuid}
+                        className="text-red-500 hover:text-red-700 text-sm disabled:opacity-50"
+                      >
+                        {revoking === cert.uuid ? "Revogando..." : "Revogar"}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+                {qrPanel?.uuid === cert.uuid && (
+                  <tr key={`${cert.uuid}-qr`} className="bg-gray-50 border-b border-gray-100">
+                    <td colSpan={5} className="py-4 px-2">
+                      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                        <img
+                          src={qrPanel.qrCodeBase64}
+                          alt="QR Code"
+                          className="w-32 h-32"
+                        />
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-600 break-all">
+                            <span className="font-medium">URL:</span> {qrPanel.validationUrl}
+                          </p>
+                          <button
+                            onClick={() => downloadQr(qrPanel)}
+                            className="bg-green-600 text-white rounded-md px-4 py-1.5 text-sm font-medium hover:bg-green-700"
+                          >
+                            Baixar QR Code (PNG)
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>

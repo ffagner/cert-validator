@@ -3,6 +3,7 @@ import {
   issueCertificate,
   validateCertificate,
   revokeCertificate,
+  getCertificateQr,
 } from "../services/certificates.service";
 
 export async function postCertificate(
@@ -48,6 +49,24 @@ export async function getCertificate(
 
     res.status(200).json(result);
   } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCertificateQrCode(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { uuid } = req.params;
+    const result = await getCertificateQr(uuid);
+    res.status(200).json(result);
+  } catch (err) {
+    if ((err as Error).name === "not_found") {
+      res.status(404).json({ message: "Certificado não encontrado." });
+      return;
+    }
     next(err);
   }
 }

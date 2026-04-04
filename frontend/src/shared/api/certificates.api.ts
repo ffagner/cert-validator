@@ -55,6 +55,17 @@ export async function getCertificate(
   return data;
 }
 
+export async function getCertificateQr(
+  uuid: string
+): Promise<{ validationUrl: string; qrCodeBase64: string }> {
+  const headers = await getAuthHeader();
+  const { data } = await axios.get<{ validationUrl: string; qrCodeBase64: string }>(
+    `${API_BASE}/certificates/${uuid}/qr`,
+    { headers }
+  );
+  return data;
+}
+
 export async function revokeCertificate(uuid: string): Promise<void> {
   const headers = await getAuthHeader();
   await axios.patch(`${API_BASE}/certificates/${uuid}/revoke`, {}, { headers });

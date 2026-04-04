@@ -1,11 +1,10 @@
-import { useState, FormEvent } from "react";
-import {
-  issueCertificate,
-  IssueCertificateResponse,
-} from "../../shared/api/certificates.api";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { issueCertificate } from "../../shared/api/certificates.api";
+import type { IssueCertificateResponse, IssueCertificatePayload } from "../../shared/api/certificates.api";
 
 interface IssueCertificateFormProps {
-  onIssued: (result: IssueCertificateResponse) => void;
+  onIssued: (result: IssueCertificateResponse, payload: IssueCertificatePayload) => void;
 }
 
 export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
@@ -29,7 +28,7 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
         issuedAt,
         expiresAt: expiresAt || undefined,
       });
-      onIssued(result);
+      onIssued(result, { studentName, courseName, issuedBy, issuedAt, expiresAt: expiresAt || undefined });
       setStudentName("");
       setCourseName("");
       setIssuedBy("");

@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { generateQrCodeBase64 } from "./qrcode.service";
 
@@ -40,15 +40,15 @@ export async function issueCertificate(
 
   const qrCodeBase64 = await generateQrCodeBase64(validationUrl);
 
-  const db = admin.firestore();
+  const db = getFirestore();
   await db.collection(COLLECTION).doc(uuid).set({
     uuid,
     studentName: input.studentName,
     courseName: input.courseName,
     issuedBy: input.issuedBy,
-    issuedAt: admin.firestore.Timestamp.fromDate(new Date(input.issuedAt)),
+    issuedAt: Timestamp.fromDate(new Date(input.issuedAt)),
     expiresAt: input.expiresAt
-      ? admin.firestore.Timestamp.fromDate(new Date(input.expiresAt))
+      ? Timestamp.fromDate(new Date(input.expiresAt))
       : null,
     isActive: true,
     templateId: null,
@@ -60,7 +60,7 @@ export async function issueCertificate(
 export async function validateCertificate(
   uuid: string
 ): Promise<CertificateValidationResult> {
-  const db = admin.firestore();
+  const db = getFirestore();
   const doc = await db.collection(COLLECTION).doc(uuid).get();
 
   // 1. Documento existe?
@@ -82,14 +82,14 @@ export async function validateCertificate(
   }
 
   // 3. expiresAt < hoje?
-  if (data.expiresAt !== null && data.expiresAt.toDate() < new Date()) {
+  if (data.expiresAt !== null && (data.expiresAt as Timestamp).toDate() < new Date()) {
     return {
       status: "expired",
       studentName: data.studentName,
       courseName: data.courseName,
       issuedBy: data.issuedBy,
-      issuedAt: (data.issuedAt as admin.firestore.Timestamp).toDate().toISOString(),
-      expiresAt: (data.expiresAt as admin.firestore.Timestamp).toDate().toISOString(),
+      issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
+      expiresAt: (data.expiresAt as Timestamp).toDate().toISOString(),
     };
   }
 
@@ -98,15 +98,35 @@ export async function validateCertificate(
     studentName: data.studentName,
     courseName: data.courseName,
     issuedBy: data.issuedBy,
-    issuedAt: (data.issuedAt as admin.firestore.Timestamp).toDate().toISOString(),
+    issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
     expiresAt: data.expiresAt
-      ? (data.expiresAt as admin.firestore.Timestamp).toDate().toISOString()
+      ? (data.expiresAt as Timestamp).toDate().toISOString()
       : null,
   };
 }
 
+export async function getCertificateQr(
+  uuid: string
+): Promise<{ validationUrl: string; qrCodeBase64: string }> {
+  const db = getFirestore();
+  const doc = await db.collection(COLLECTION).doc(uuid).get();
+
+  if (!doc.exists) {
+    const err = new Error("not_found");
+    err.name = "not_found";
+    throw err;
+  }
+
+  const validationBaseUrl =
+    process.env.VALIDATION_BASE_URL ?? "https://cert-validator-ff.web.app";
+  const validationUrl = `${validationBaseUrl}/validar/${uuid}`;
+  const qrCodeBase64 = await generateQrCodeBase64(validationUrl);
+
+  return { validationUrl, qrCodeBase64 };
+}
+
 export async function revokeCertificate(uuid: string): Promise<void> {
-  const db = admin.firestore();
+  const db = getFirestore();
   const docRef = db.collection(COLLECTION).doc(uuid);
   const doc = await docRef.get();
 

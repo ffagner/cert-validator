@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../app/firebase";
 import { IssueCertificateForm } from "./IssueCertificateForm";
 import { CertificateList } from "./CertificateList";
-import { IssueCertificateResponse } from "../../shared/api/certificates.api";
+import type { IssueCertificateResponse, IssueCertificatePayload } from "../../shared/api/certificates.api";
 
 interface IssuedCertificate {
   uuid: string;
@@ -32,17 +32,16 @@ export function DashboardPage() {
     navigate("/login");
   }
 
-  function handleIssued(result: IssueCertificateResponse) {
+  function handleIssued(result: IssueCertificateResponse, payload: IssueCertificatePayload) {
     setLastQr(result);
-    // Adiciona à listagem local — em produção, viria de uma consulta ao Firestore
     setCertificates((prev) => [
       {
         uuid: result.uuid,
-        studentName: "",
-        courseName: "",
-        issuedBy: "",
-        issuedAt: new Date().toISOString(),
-        expiresAt: null,
+        studentName: payload.studentName,
+        courseName: payload.courseName,
+        issuedBy: payload.issuedBy,
+        issuedAt: new Date(payload.issuedAt).toISOString(),
+        expiresAt: payload.expiresAt ? new Date(payload.expiresAt).toISOString() : null,
         isActive: true,
       },
       ...prev,

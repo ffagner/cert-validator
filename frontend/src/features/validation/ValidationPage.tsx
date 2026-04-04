@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getCertificate,
-  CertificateValidationResponse,
-} from "../../shared/api/certificates.api";
+import { getCertificate } from "../../shared/api/certificates.api";
+import type { CertificateValidationResponse } from "../../shared/api/certificates.api";
 
 export function ValidationPage() {
   const { uuid } = useParams<{ uuid: string }>();

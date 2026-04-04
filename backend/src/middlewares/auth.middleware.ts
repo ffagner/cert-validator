@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as admin from "firebase-admin";
+import { getAuth } from "firebase-admin/auth";
 
 export async function verifyFirebaseToken(
   req: Request,
@@ -16,7 +16,7 @@ export async function verifyFirebaseToken(
   const token = authHeader.split("Bearer ")[1];
 
   try {
-    await admin.auth().verifyIdToken(token);
+    await getAuth().verifyIdToken(token);
     next();
   } catch {
     res.status(401).json({ message: "Token inválido ou expirado." });

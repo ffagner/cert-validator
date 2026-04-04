@@ -3,6 +3,7 @@ import { verifyFirebaseToken } from "../middlewares/auth.middleware";
 import {
   postCertificate,
   getCertificate,
+  getCertificateQrCode,
   patchRevokeCertificate,
 } from "../controllers/certificates.controller";
 
@@ -10,4 +11,5 @@ export const certificatesRouter = Router();
 
 certificatesRouter.post("/", verifyFirebaseToken, postCertificate);
 certificatesRouter.get("/:uuid", getCertificate);
+certificatesRouter.get("/:uuid/qr", verifyFirebaseToken, getCertificateQrCode);
 certificatesRouter.patch("/:uuid/revoke", verifyFirebaseToken, patchRevokeCertificate);

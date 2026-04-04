@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+lib/
+**/dist/
+**/lib/
+
+# Environment variables
+.env
+**/.env
+
+# Firebase service account keys
+*-service-account*.json
+*serviceAccount*.json
+serviceAccountKey.json
+
+# Firebase emulator data
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+
+# OS
+.DS_Store
+Thumbs.db

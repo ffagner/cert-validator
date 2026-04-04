@@ -7,6 +7,7 @@ const COLLECTION = "certificates";
 export interface IssueCertificateInput {
   studentName: string;
   courseName: string;
+  courseHours: number;
   issuedBy: string;
   issuedAt: string;
   expiresAt?: string;
@@ -25,6 +26,7 @@ export interface CertificateValidationResult {
   message?: string;
   studentName?: string;
   courseName?: string;
+  courseHours?: number;
   issuedBy?: string;
   issuedAt?: string;
   expiresAt?: string | null;
@@ -45,6 +47,7 @@ export async function issueCertificate(
     uuid,
     studentName: input.studentName,
     courseName: input.courseName,
+    courseHours: input.courseHours,
     issuedBy: input.issuedBy,
     issuedAt: Timestamp.fromDate(new Date(input.issuedAt)),
     expiresAt: input.expiresAt
@@ -87,6 +90,7 @@ export async function validateCertificate(
       status: "expired",
       studentName: data.studentName,
       courseName: data.courseName,
+      courseHours: data.courseHours,
       issuedBy: data.issuedBy,
       issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
       expiresAt: (data.expiresAt as Timestamp).toDate().toISOString(),
@@ -97,6 +101,7 @@ export async function validateCertificate(
     status: "valid",
     studentName: data.studentName,
     courseName: data.courseName,
+    courseHours: data.courseHours,
     issuedBy: data.issuedBy,
     issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
     expiresAt: data.expiresAt

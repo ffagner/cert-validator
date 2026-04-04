@@ -6,6 +6,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 export interface IssueCertificatePayload {
   studentName: string;
   courseName: string;
+  courseHours: number;
   issuedBy: string;
   issuedAt: string;
   expiresAt?: string;
@@ -22,6 +23,7 @@ export interface CertificateValidationResponse {
   message?: string;
   studentName?: string;
   courseName?: string;
+  courseHours?: number;
   issuedBy?: string;
   issuedAt?: string;
   expiresAt?: string | null;

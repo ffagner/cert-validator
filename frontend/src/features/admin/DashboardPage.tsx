@@ -10,6 +10,7 @@ interface IssuedCertificate {
   uuid: string;
   studentName: string;
   courseName: string;
+  courseHours: number;
   issuedBy: string;
   issuedAt: string;
   expiresAt: string | null;
@@ -39,6 +40,7 @@ export function DashboardPage() {
         uuid: result.uuid,
         studentName: payload.studentName,
         courseName: payload.courseName,
+        courseHours: payload.courseHours,
         issuedBy: payload.issuedBy,
         issuedAt: new Date(payload.issuedAt).toISOString(),
         expiresAt: payload.expiresAt ? new Date(payload.expiresAt).toISOString() : null,

@@ -44,6 +44,12 @@ export function ValidationPage() {
                 <dt className="text-gray-500">Curso</dt>
                 <dd className="text-gray-800 font-medium">{result.courseName}</dd>
               </div>
+              {result.courseHours && (
+                <div>
+                  <dt className="text-gray-500">Carga horária</dt>
+                  <dd className="text-gray-800 font-medium">{result.courseHours}h</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-gray-500">Emitido por</dt>
                 <dd className="text-gray-800 font-medium">{result.issuedBy}</dd>
@@ -83,6 +89,12 @@ export function ValidationPage() {
                 <dt className="text-gray-500">Curso</dt>
                 <dd className="text-gray-800 font-medium">{result.courseName}</dd>
               </div>
+              {result.courseHours && (
+                <div>
+                  <dt className="text-gray-500">Carga horária</dt>
+                  <dd className="text-gray-800 font-medium">{result.courseHours}h</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-gray-500">Emitido por</dt>
                 <dd className="text-gray-800 font-medium">{result.issuedBy}</dd>

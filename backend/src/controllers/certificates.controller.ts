@@ -12,16 +12,23 @@ export async function postCertificate(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { studentName, courseName, issuedBy, issuedAt, expiresAt } = req.body;
+    const { studentName, courseName, courseHours, issuedBy, issuedAt, expiresAt } = req.body;
 
-    if (!studentName || !courseName || !issuedBy || !issuedAt) {
-      res.status(400).json({ message: "Campos obrigatórios ausentes: studentName, courseName, issuedBy, issuedAt." });
+    if (!studentName || !courseName || !issuedBy || !issuedAt || courseHours === undefined) {
+      res.status(400).json({ message: "Campos obrigatórios ausentes: studentName, courseName, courseHours, issuedBy, issuedAt." });
+      return;
+    }
+
+    const parsedHours = Number(courseHours);
+    if (!Number.isInteger(parsedHours) || parsedHours <= 0) {
+      res.status(400).json({ message: "courseHours deve ser um número inteiro positivo." });
       return;
     }
 
     const result = await issueCertificate({
       studentName,
       courseName,
+      courseHours: parsedHours,
       issuedBy,
       issuedAt,
       expiresAt,

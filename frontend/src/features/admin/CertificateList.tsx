@@ -5,6 +5,7 @@ export interface CertificateItem {
   uuid: string;
   studentName: string;
   courseName: string;
+  courseHours: number;
   issuedBy: string;
   issuedAt: string;
   expiresAt: string | null;

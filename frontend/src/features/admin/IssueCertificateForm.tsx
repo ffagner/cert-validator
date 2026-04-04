@@ -10,6 +10,7 @@ interface IssueCertificateFormProps {
 export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
   const [studentName, setStudentName] = useState("");
   const [courseName, setCourseName] = useState("");
+  const [courseHours, setCourseHours] = useState("");
   const [issuedBy, setIssuedBy] = useState("");
   const [issuedAt, setIssuedAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
@@ -21,16 +22,19 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const result = await issueCertificate({
+      const payload: IssueCertificatePayload = {
         studentName,
         courseName,
+        courseHours: Number(courseHours),
         issuedBy,
         issuedAt,
         expiresAt: expiresAt || undefined,
-      });
-      onIssued(result, { studentName, courseName, issuedBy, issuedAt, expiresAt: expiresAt || undefined });
+      };
+      const result = await issueCertificate(payload);
+      onIssued(result, payload);
       setStudentName("");
       setCourseName("");
+      setCourseHours("");
       setIssuedBy("");
       setIssuedAt("");
       setExpiresAt("");
@@ -65,6 +69,20 @@ export function IssueCertificateForm({ onIssued }: IssueCertificateFormProps) {
             required
             value={courseName}
             onChange={(e) => setCourseName(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Carga horária (horas) *
+          </label>
+          <input
+            type="number"
+            required
+            min={1}
+            step={1}
+            value={courseHours}
+            onChange={(e) => setCourseHours(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

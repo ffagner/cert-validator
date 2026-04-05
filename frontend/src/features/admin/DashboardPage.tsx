@@ -1,21 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../app/firebase";
 import { IssueCertificateForm } from "./IssueCertificateForm";
 import { CertificateList } from "./CertificateList";
-import type { IssueCertificateResponse, IssueCertificatePayload } from "../../shared/api/certificates.api";
-
-interface IssuedCertificate {
-  uuid: string;
-  studentName: string;
-  courseName: string;
-  courseHours: number;
-  issuedBy: string;
-  issuedAt: string;
-  expiresAt: string | null;
-  isActive: boolean;
-}
+import { listCertificates } from "../../shared/api/certificates.api";
+import type {
+  IssueCertificateResponse,
+  IssueCertificatePayload,
+  CertificateListItem,
+} from "../../shared/api/certificates.api";
 
 interface QrResult {
   uuid: string;
@@ -25,8 +19,16 @@ interface QrResult {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const [certificates, setCertificates] = useState<IssuedCertificate[]>([]);
+  const [certificates, setCertificates] = useState<CertificateListItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [lastQr, setLastQr] = useState<QrResult | null>(null);
+
+  useEffect(() => {
+    listCertificates()
+      .then(setCertificates)
+      .catch(() => {/* erro silencioso — lista fica vazia */})
+      .finally(() => setLoading(false));
+  }, []);
 
   async function handleLogout() {
     await signOut(auth);
@@ -42,6 +44,7 @@ export function DashboardPage() {
         courseName: payload.courseName,
         courseHours: payload.courseHours,
         issuedBy: payload.issuedBy,
+        issuedByCnpj: payload.issuedByCnpj,
         issuedAt: new Date(payload.issuedAt).toISOString(),
         expiresAt: payload.expiresAt ? new Date(payload.expiresAt).toISOString() : null,
         isActive: true,
@@ -114,7 +117,11 @@ export function DashboardPage() {
           <h2 className="text-base font-semibold text-gray-800 mb-4">
             Certificados Emitidos
           </h2>
-          <CertificateList certificates={certificates} onRevoked={handleRevoked} />
+          {loading ? (
+            <p className="text-gray-500 text-sm">Carregando...</p>
+          ) : (
+            <CertificateList certificates={certificates} onRevoked={handleRevoked} />
+          )}
         </section>
       </main>
     </div>

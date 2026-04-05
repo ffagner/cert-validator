@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { verifyFirebaseToken } from "../middlewares/auth.middleware";
 import {
+  getCertificates,
   postCertificate,
   getCertificate,
   getCertificateQrCode,
@@ -9,6 +10,7 @@ import {
 
 export const certificatesRouter = Router();
 
+certificatesRouter.get("/", verifyFirebaseToken, getCertificates);
 certificatesRouter.post("/", verifyFirebaseToken, postCertificate);
 certificatesRouter.get("/:uuid", getCertificate);
 certificatesRouter.get("/:uuid/qr", verifyFirebaseToken, getCertificateQrCode);

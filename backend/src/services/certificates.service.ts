@@ -115,6 +115,43 @@ export async function validateCertificate(
   };
 }
 
+export interface CertificateListItem {
+  uuid: string;
+  studentName: string;
+  courseName: string;
+  courseHours: number;
+  issuedBy: string;
+  issuedByCnpj: string;
+  issuedAt: string;
+  expiresAt: string | null;
+  isActive: boolean;
+}
+
+export async function listCertificates(): Promise<CertificateListItem[]> {
+  const db = getFirestore();
+  const snapshot = await db
+    .collection(COLLECTION)
+    .orderBy("issuedAt", "desc")
+    .get();
+
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      uuid: data.uuid,
+      studentName: data.studentName,
+      courseName: data.courseName,
+      courseHours: data.courseHours,
+      issuedBy: data.issuedBy,
+      issuedByCnpj: data.issuedByCnpj,
+      issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
+      expiresAt: data.expiresAt
+        ? (data.expiresAt as Timestamp).toDate().toISOString()
+        : null,
+      isActive: data.isActive,
+    };
+  });
+}
+
 export async function getCertificateQr(
   uuid: string
 ): Promise<{ validationUrl: string; qrCodeBase64: string }> {

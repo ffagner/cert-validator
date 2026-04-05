@@ -38,6 +38,27 @@ async function getAuthHeader(): Promise<{ Authorization: string }> {
   return { Authorization: `Bearer ${token}` };
 }
 
+export interface CertificateListItem {
+  uuid: string;
+  studentName: string;
+  courseName: string;
+  courseHours: number;
+  issuedBy: string;
+  issuedByCnpj: string;
+  issuedAt: string;
+  expiresAt: string | null;
+  isActive: boolean;
+}
+
+export async function listCertificates(): Promise<CertificateListItem[]> {
+  const headers = await getAuthHeader();
+  const { data } = await axios.get<CertificateListItem[]>(
+    `${API_BASE}/certificates`,
+    { headers }
+  );
+  return data;
+}
+
 export async function issueCertificate(
   payload: IssueCertificatePayload
 ): Promise<IssueCertificateResponse> {

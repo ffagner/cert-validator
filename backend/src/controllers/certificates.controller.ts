@@ -1,10 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import {
   issueCertificate,
+  listCertificates,
   validateCertificate,
   revokeCertificate,
   getCertificateQr,
 } from "../services/certificates.service";
+
+export async function getCertificates(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const certificates = await listCertificates();
+    res.status(200).json(certificates);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function postCertificate(
   req: Request,

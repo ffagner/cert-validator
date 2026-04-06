@@ -17,6 +17,7 @@ interface Props {
   onCompanyRegistered?: (company: Omit<Company, "logoBase64">) => void;
 }
 
+// Formata o CNPJ 
 function formatCnpj(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 14);
   return digits

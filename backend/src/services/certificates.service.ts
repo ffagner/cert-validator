@@ -58,9 +58,11 @@ export async function issueCertificate(
     courseHours: input.courseHours,
     issuedBy: input.issuedBy,
     issuedByCnpj: input.issuedByCnpj,
-    issuedAt: Timestamp.fromDate(new Date(input.issuedAt)),
+    // "T12:00:00Z" evita que datas no formato YYYY-MM-DD sejam interpretadas
+    // como meia-noite UTC e recuem um dia em fusos negativos (ex: UTC-3)
+    issuedAt: Timestamp.fromDate(new Date(input.issuedAt + "T12:00:00Z")),
     expiresAt: input.expiresAt
-      ? Timestamp.fromDate(new Date(input.expiresAt))
+      ? Timestamp.fromDate(new Date(input.expiresAt + "T12:00:00Z"))
       : null,
     isActive: true,
     templateId: null,

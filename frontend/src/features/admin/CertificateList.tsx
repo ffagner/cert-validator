@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { revokeCertificate, getCertificateQr } from "../../shared/api/certificates.api";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export interface CertificateItem {
@@ -93,9 +93,9 @@ function CertificateRow({
     link.click();
   }
 
-  const issuedAtFmt = format(new Date(cert.issuedAt), "dd/MM/yyyy", { locale: ptBR });
+  const issuedAtFmt = format(parseISO(cert.issuedAt), "dd/MM/yyyy", { locale: ptBR });
   const expiresAtFmt = cert.expiresAt
-    ? format(new Date(cert.expiresAt), "dd/MM/yyyy", { locale: ptBR })
+    ? format(parseISO(cert.expiresAt), "dd/MM/yyyy", { locale: ptBR })
     : "Sem validade";
 
   return (

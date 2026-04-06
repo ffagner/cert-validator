@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getCertificate } from "../../shared/api/certificates.api";
 import type { CertificateValidationResponse } from "../../shared/api/certificates.api";
@@ -216,7 +216,7 @@ function HeroSection({ result, uuid }: { result: CertificateValidationResponse; 
 
 function DetailsGrid({ result, uuid }: { result: CertificateValidationResponse; uuid: string }) {
   const issuedAtFormatted = result.issuedAt
-    ? format(new Date(result.issuedAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+    ? format(parseISO(result.issuedAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
     : "—";
 
   return (

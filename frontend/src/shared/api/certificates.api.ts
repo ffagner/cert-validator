@@ -29,6 +29,7 @@ export interface CertificateValidationResponse {
   issuedByCnpj?: string;
   issuedAt?: string;
   expiresAt?: string | null;
+  logoBase64?: string | null;
 }
 
 async function getAuthHeader(): Promise<{ Authorization: string }> {
@@ -94,4 +95,33 @@ export async function getCertificateQr(
 export async function revokeCertificate(uuid: string): Promise<void> {
   const headers = await getAuthHeader();
   await axios.patch(`${API_BASE}/certificates/${uuid}/revoke`, {}, { headers });
+}
+
+export interface Company {
+  cnpj: string;
+  name: string;
+  logoBase64: string | null;
+}
+
+export async function listCompanies(): Promise<Company[]> {
+  const headers = await getAuthHeader();
+  const { data } = await axios.get<Company[]>(`${API_BASE}/companies`, { headers });
+  return data;
+}
+
+export async function getCompanyByCnpj(cnpj: string): Promise<Company | null> {
+  const headers = await getAuthHeader();
+  try {
+    const key = cnpj.replace(/\D/g, "");
+    const { data } = await axios.get<Company>(`${API_BASE}/companies/${key}`, { headers });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function updateCompanyLogo(cnpj: string, logoBase64: string): Promise<void> {
+  const headers = await getAuthHeader();
+  const key = cnpj.replace(/\D/g, "");
+  await axios.put(`${API_BASE}/companies/${key}/logo`, { logoBase64 }, { headers });
 }

@@ -1,6 +1,7 @@
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { generateQrCodeBase64 } from "./qrcode.service";
+import { getCompany, upsertCompany } from "./companies.service";
 
 const COLLECTION = "certificates";
 
@@ -32,6 +33,7 @@ export interface CertificateValidationResult {
   issuedByCnpj?: string;
   issuedAt?: string;
   expiresAt?: string | null;
+  logoBase64?: string | null;
 }
 
 export async function issueCertificate(
@@ -45,6 +47,10 @@ export async function issueCertificate(
   const qrCodeBase64 = await generateQrCodeBase64(validationUrl);
 
   const db = getFirestore();
+
+  // Registra/atualiza a empresa sem sobrescrever logo existente
+  await upsertCompany(input.issuedByCnpj, input.issuedBy);
+
   await db.collection(COLLECTION).doc(uuid).set({
     uuid,
     studentName: input.studentName,
@@ -67,6 +73,7 @@ export async function validateCertificate(
   uuid: string
 ): Promise<CertificateValidationResult> {
   const db = getFirestore();
+
   const doc = await db.collection(COLLECTION).doc(uuid).get();
 
   // 1. Documento existe?
@@ -87,6 +94,10 @@ export async function validateCertificate(
     };
   }
 
+  // Busca logo da empresa emissora pelo CNPJ do certificado
+  const company = await getCompany(data.issuedByCnpj);
+  const logoBase64 = company?.logoBase64 ?? null;
+
   // 3. expiresAt < hoje?
   if (data.expiresAt !== null && (data.expiresAt as Timestamp).toDate() < new Date()) {
     return {
@@ -98,6 +109,7 @@ export async function validateCertificate(
       issuedByCnpj: data.issuedByCnpj,
       issuedAt: (data.issuedAt as Timestamp).toDate().toISOString(),
       expiresAt: (data.expiresAt as Timestamp).toDate().toISOString(),
+      logoBase64,
     };
   }
 
@@ -112,6 +124,7 @@ export async function validateCertificate(
     expiresAt: data.expiresAt
       ? (data.expiresAt as Timestamp).toDate().toISOString()
       : null,
+    logoBase64,
   };
 }
 

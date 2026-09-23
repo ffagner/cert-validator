@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../app/firebase";
 import { IssueCertificateForm } from "./IssueCertificateForm";
 import { CertificateList } from "./CertificateList";
+import { PdfQrEditor } from "../templates/PdfQrEditor";
 import {
   listCertificates,
   listCompanies,
@@ -140,6 +141,7 @@ export function DashboardPage() {
   const [certificates, setCertificates] = useState<CertificateItem[]>([]);
   const [loadingCerts, setLoadingCerts] = useState(true);
   const [lastQr, setLastQr] = useState<QrResult | null>(null);
+  const [showPdfEditor, setShowPdfEditor] = useState(false);
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
@@ -237,15 +239,33 @@ export function DashboardPage() {
                 <p className="text-sm text-gray-600 break-all">
                   <span className="font-medium">URL:</span> {lastQr.validationUrl}
                 </p>
-                <button
-                  onClick={downloadQr}
-                  className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700"
-                >
-                  Baixar QR Code (PNG)
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={downloadQr}
+                    className="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700"
+                  >
+                    Baixar QR Code (PNG)
+                  </button>
+                  <button
+                    onClick={() => setShowPdfEditor(true)}
+                    className="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700"
+                  >
+                    Inserir QR no PDF
+                  </button>
+                </div>
               </div>
             </div>
           </section>
+        )}
+
+        {/* Editor de posicionamento do QR no PDF */}
+        {showPdfEditor && lastQr && (
+          <PdfQrEditor
+            qrCodeBase64={lastQr.qrCodeBase64}
+            validationUrl={lastQr.validationUrl}
+            certificateUuid={lastQr.uuid}
+            onClose={() => setShowPdfEditor(false)}
+          />
         )}
 
         {/* Empresas */}

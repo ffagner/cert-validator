@@ -1,9 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Coleção de Certificados
     match /certificates/{uuid} {
-      allow read: if true;
-      allow write: if false;
+      // Validação pública: qualquer pessoa pode consultar um certificado específico pelo UUID
+      allow get: if true;
+      // Listagem geral no painel: somente usuários autenticados (admin)
+      allow list: if request.auth != null;
+      // Emissão e revogação: somente admin autenticado
+      allow create, update: if request.auth != null;
+      // Nunca permitir exclusão física
+      allow delete: if false;
+    }
+
+    // Coleção de Empresas
+    match /companies/{cnpj} {
+      // Leitura pública (para exibir a logo e nome na página de validação pública)
+      allow get: if true;
+      // Gestão de empresas e upload de logos: somente admin autenticado
+      allow list, write: if request.auth != null;
+      allow delete: if false;
     }
   }
 }
